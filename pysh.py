@@ -1,12 +1,6 @@
 import sys
 from pysh_essentials import *
 
-print("""
-Welcome to PYSH (Python Shell V1.0)
-
-Github Repository : https://github.com/H1387Lmao/PYSH
-""".strip())
-
 import traceback
 import time
 import os
@@ -314,6 +308,11 @@ def start_shell():
 	global PWD
 	sys.stderr = sys.__stderr__
 	os.system("cls" if os.name == "nt" else "clear")
+	print("""
+Welcome to PYSH (Python Shell V1.0)
+
+Github Repository : https://github.com/H1387Lmao/PYSH
+""".strip())
 	PWD=filemgr.get_home()
 	while True:
 		try:
