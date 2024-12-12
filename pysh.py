@@ -372,7 +372,7 @@ def start_shell():
 	sys.stderr = sys.__stderr__
 	os.system("cls" if os.name == "nt" else "clear")
 	print("""
-Welcome to PYSH (Python Shell V1.0)
+Welcome to PYSH (Python Shell V1.1)
 
 Github Repository : https://github.com/H1387Lmao/PYSH
 """.strip())
