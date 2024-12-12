@@ -1,6 +1,8 @@
 import sys
 from pysh_essentials import *
 
+
+import requests as re
 import traceback
 import time
 import os
@@ -15,8 +17,10 @@ import getpass
 if os.name !="nt":
 	colored_print("Linux is currently not supported, please use a better os")
 	sys.exit()
+
 IS_SUDO=False
 IS_CONFIRMED=False
+LINK = "http://192.168.3.19:5000"
 
 def trace_function_calls(frame, event, arg):
 	if event == "line":
@@ -120,7 +124,9 @@ def run(*args, **kwargs):
 		if args[0][0].endswith(".py"):
 			colored_print(f"&cUnable to run {args[0][0]}, because the specified extenstion is a python file.")
 			return
-		abs_path=__file__.removesuffix("\\pysh.py")+f"/pysh_subsystem/{PWD[1:]}".replace("/", "\\")
+		abs_path = __file__.removesuffix("\\pysh.py").removesuffix("/pysh.py")+f"/pysh_subsystem/{PWD[1:]}".replace("/", "\\")
+		if os.name != "nt":
+			abs_path=abs_path.replace("\\", "/")
 		try:
 			run_script(f"{abs_path}\\{args[0][0]}", run_command)
 		except Exception as e:
@@ -183,11 +189,13 @@ def cat(*args, **kwargs):
 
 @trace_decorator
 def abs_pwd(*args, **kwargs):
-	abs_path=__file__.removesuffix("\\pysh.py")+f"/pysh_subsystem/{PWD[1:]}".replace("/", "\\")
+	abs_path = __file__.removesuffix("\\pysh.py").removesuffix("/pysh.py")+f"/pysh_subsystem/{PWD[1:]}".replace("/", "\\")
 	print(abs_path)
 
 def get_abs():
-	abs_path=__file__.removesuffix("\\pysh.py")+f"/pysh_subsystem/{PWD[1:]}".replace("/", "\\")
+	abs_path = __file__.removesuffix("\\pysh.py").removesuffix("/pysh.py")+f"/pysh_subsystem/{PWD[1:]}".replace("/", "\\")
+	if os.name != "nt":
+		abs_path=abs_path.replace("\\", "/")
 	return abs_path
 
 def is_command(func):
@@ -209,7 +217,56 @@ def ask():
 		sys.stderr = sys.__stderr__
 		return ""
 
+def install_apt(app_name, app_version=None):
+	link = f"{LINK}/download/{app_name}/v/{app_version}" if app_version else f"{LINK}/download/{app_name}"
+	LATEST=f"{LINK}/info/{app_name}/version"
+	req=re.get(url=link)
+	if req.status_code != 200:
+		colored_print(f"&c{req.content.decode()}")
+		return False
+	else:
+		code=req.content.decode()
+		if app_version:
+			with open("./pysh_subsystem"+filemgr.get_home()+f"/user_packages/{app_name}_v{app_version}.pysh" , "w") as f:
+				f.write(code)
+			return True
+		else:
+			version = re.get(url=LATEST)
+			if version.status_code == 200:
+				with open("./pysh_subsystem"+filemgr.get_home()+f"/user_packages/{app_name}_v{version.content.decode()}.pysh" , "w") as f:
+					f.write(code)
+				return True
+			else:
+				colored_print(f"&c{version.content.decode()}")
+				return False
+	
 
+
+def apt(*args, **kwargs):
+	is_root = kwargs.get("root")
+	is_root=True
+
+	if not is_root:
+		colored_print("&cAccess Denied")
+		return
+	if len(args[0]) < 2:
+		colored_print("&cNot Enough Arguments")
+		return
+
+	if args[0][0] == "install":
+		name = args[0][1]
+		try_version = name.split("@")
+		if len(try_version)==2:
+			name=try_version[0]
+			version = try_version[1]
+		else:
+			version =None
+
+		res=install_apt(name, version)
+		if res:
+			colored_print("&1Success.")
+		else:
+			colored_print("&cCannot install package")
 
 def get_possible_commands(input_command):
 	if not input_command:
@@ -251,7 +308,9 @@ def ls(*args, **kwargs):
 			return
 
 	# Get the list of files and folders
-	abs_path = __file__.removesuffix("\\pysh.py")+f"/pysh_subsystem/{PWD[1:]}".replace("/", "\\")
+	abs_path = __file__.removesuffix("\\pysh.py").removesuffix("/pysh.py")+f"/pysh_subsystem/{PWD[1:]}".replace("/", "\\")
+	if os.name != "nt":
+		abs_path=abs_path.replace("\\", "/")
 	files_and_folders = os.listdir(f"{abs_path}")
 
 	max_length = max(len(item) for item in files_and_folders) if files_and_folders else 0
@@ -307,6 +366,7 @@ def run_command(shell_input, is_root=False):
 commands = [command.__name__ for command in globals().values() if is_command(command)]
 commands.append("run")
 commands.append("ls")
+commands.append("apt")
 def start_shell():
 	global PWD
 	sys.stderr = sys.__stderr__
