@@ -135,7 +135,7 @@ def format_PWD(PWD, data=datav):
 		datav=data
 
 	if PWD.startswith(datav.get("Home_Directory")):
-		return f"~"
+		return f"~{PWD.removeprefix(datav.get("Home_Directory"))}"
 	A = PWD.replace("./", "")
 	if A != "/":
 		if PWD.startswith("/"):
