@@ -25,6 +25,7 @@ def init(no_save=False):
 	PASSWORD = getpass.getpass(format_color("&eEnter Password: "))
 
 	os.mkdir(f"./pysh_subsystem/{USERNAME}")
+	os.mkdir(f"./pysh_subsystem/{USERNAME}/user_packages")
 
 	write_data("Username", USERNAME)
 	write_data("Password", PASSWORD)
