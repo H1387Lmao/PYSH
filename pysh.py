@@ -12,6 +12,9 @@ from pysh_interpreter import run_script
 import math
 import getpass
 
+if os.name !="nt:
+	colored_print("Linux is currently not supported, please use a better os")
+	sys.exit()
 IS_SUDO=False
 IS_CONFIRMED=False
 
