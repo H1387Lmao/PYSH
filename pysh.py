@@ -5,6 +5,11 @@ if __file__.startswith("/") or __file__.startswith("\\"):
 	colored_print("&cLinux is currently unsupported!")
 	colored_print("&cPlease use a superior file system!")
 	sys.exit()
+print("""
+Welcome to PYSH (Python Shell V1.0)
+
+Github Repository : https://github.com/H1387Lmao/PYSH
+""".strip())
 
 import traceback
 import time
