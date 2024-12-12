@@ -1,10 +1,6 @@
 import sys
 from pysh_essentials import *
 
-if __file__.startswith("/") or __file__.startswith("\\"):
-	colored_print("&cLinux is currently unsupported!")
-	colored_print("&cPlease use a superior file system!")
-	sys.exit()
 print("""
 Welcome to PYSH (Python Shell V1.0)
 
